@@ -1,0 +1,51 @@
+ 0th Training Step, training accuracy 0.62	 0 : test accuracy 0.804154 
+	 20 : test accuracy 0.999407 
+	 40 : test accuracy 1 
+	 60 : test accuracy 1 
+	 80 : test accuracy 1 
+ 100th Training Step, training accuracy 1	 100 : test accuracy 1 
+	 120 : test accuracy 1 
+	 140 : test accuracy 1 
+	 160 : test accuracy 1 
+	 180 : test accuracy 1 
+ 200th Training Step, training accuracy 1	 200 : test accuracy 1 
+	 220 : test accuracy 1 
+	 240 : test accuracy 1 
+	 260 : test accuracy 1 
+	 280 : test accuracy 1 
+ 300th Training Step, training accuracy 1	 300 : test accuracy 1 
+	 320 : test accuracy 1 
+	 340 : test accuracy 1 
+	 360 : test accuracy 1 
+	 380 : test accuracy 1 
+ 400th Training Step, training accuracy 1	 400 : test accuracy 1 
+	 420 : test accuracy 1 
+	 440 : test accuracy 1 
+	 460 : test accuracy 1 
+	 480 : test accuracy 1 
+ 500th Training Step, training accuracy 1	 500 : test accuracy 1 
+	 520 : test accuracy 1 
+	 540 : test accuracy 1 
+	 560 : test accuracy 1 
+	 580 : test accuracy 1 
+ 600th Training Step, training accuracy 1	 600 : test accuracy 1 
+	 620 : test accuracy 1 
+	 640 : test accuracy 1 
+	 660 : test accuracy 1 
+	 680 : test accuracy 1 
+ 700th Training Step, training accuracy 1	 700 : test accuracy 1 
+	 720 : test accuracy 1 
+	 740 : test accuracy 1 
+	 760 : test accuracy 1 
+	 780 : test accuracy 1 
+ 800th Training Step, training accuracy 1	 800 : test accuracy 1 
+	 820 : test accuracy 1 
+	 840 : test accuracy 1 
+	 860 : test accuracy 1 
+	 880 : test accuracy 1 
+ 900th Training Step, training accuracy 1	 900 : test accuracy 1 
+	 920 : test accuracy 1 
+	 940 : test accuracy 1 
+	 960 : test accuracy 1 
+	 980 : test accuracy 1 
+1, 1 , 12, 1 , 13, 1 , 14, 1 , 15, 1 , 16, 1 , 17, 1 , 18, 1 , 19, 1 , 110, 1 , 111, 1 , 112, 1 , 113, 1 , 114, 1 , 115, 1 , 116, 1 , 117, 1 , 118, 1 , 119, 1 , 120, 1 , 121, 1 , 122, 1 , 123, 1 , 124, 1 , 125, 1 , 126, 1 , 127, 1 , 128, 1 , 129, 1 , 130, 1 , 131, 1 , 132, 1 , 133, 1 , 134, 1 , 135, 1 , 136, 1 , 137, 1 , 138, 1 , 139, 1 , 140, 1 , 141, 1 , 142, 1 , 143, 1 , 144, 1 , 145, 1 , 146, 1 , 147, 1 , 148, 1 , 149, 1 , 150, 1 , 1
