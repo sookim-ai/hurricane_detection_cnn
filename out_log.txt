@@ -1,4 +1,5 @@
- 0th Training Step, training accuracy 0.62	 0 : test accuracy 0.804154 
+Test: line added. 
+0th Training Step, training accuracy 0.62	 0 : test accuracy 0.804154 
 	 20 : test accuracy 0.999407 
 	 40 : test accuracy 1 
 	 60 : test accuracy 1 
