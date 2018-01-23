@@ -69,8 +69,8 @@ def build_detection_CNN(input_placeholder, keep_prob, output_placeholder=None, h
              h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1)+b_conv1)
              h_pool1 = max_pool_2x2(h_conv1)
             # (2) Second Convolutional Layer
-             W_conv2 = weight_variable([5, 5, 32, 32], 'W_conv2_{}'.format(i))
-             b_conv2 = bias_variable([32], 'b_conv2_{}'.format(i))
+             W_conv2 = weight_variable([5, 5, 32, 64], 'W_conv2_{}'.format(i))
+             b_conv2 = bias_variable([64], 'b_conv2_{}'.format(i))
              h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
              h_pool2.append(max_pool_2x2(h_conv2))
 
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     data_select = args['DATASET']
     model_name = args['MODEL']
     try:
-        assert data_select in ('2ch', '3ch', '3ch_more')
+        assert data_select in ('2ch', '3ch')
         print('### Training model for {}'.format(data_select))
     except:
         raise ValueError('The argument of script should be either "2ch" or "3ch". Got {}'.format(data_select))
@@ -153,19 +153,12 @@ if __name__ == '__main__':
         data_dir = 'detection_cnn_lr_2ch'
         model_dir = 'model'
         n_input_chan = 2
-        npy_file_dir = 'data'
     elif data_select == '3ch':
         data_dir = 'detection_cnn_hr_3ch'
         model_dir = 'model'
         n_input_chan = 3
-        npy_file_dir = 'data'
-    elif data_select == '3ch_more':
-        data_dir = 'detection_cnn_hr_3ch'
-        model_dir = 'model'
-        n_input_chan = 3
-        npy_file_dir = 'more_data'
 
-    path = os.path.join(data_dir, npy_file_dir)
+    path = os.path.join(data_dir, "data")
     model_path = os.path.join(data_dir, model_dir, model_name)
     if not os.path.exists(model_path):
         os.makedirs(model_path)
@@ -178,6 +171,15 @@ if __name__ == '__main__':
     # Read Data
     batch_xs_in = np.load(os.path.join(path, "hurricane_input.npy"))
     batch_ys_in = np.load(os.path.join(path, "hurricane_label.npy"))
+    print("Before augment {} {}".format(batch_xs_in.shape, batch_ys_in.shape))
+
+    # Augment negative examples
+    neg_xs = batch_xs_in[batch_ys_in.flatten()==0]
+    print(neg_xs.shape)
+    neg_ys = batch_ys_in[batch_ys_in.flatten()==0]
+    batch_xs_in = np.append(batch_xs_in, neg_xs, axis=0)
+    batch_ys_in = np.append(batch_ys_in, neg_ys, axis=0)
+
     xd1, xd2, xd3, xd4 = np.shape(batch_xs_in) 
     yd1, yd2 = np.shape(batch_ys_in) 
     channels = xd4
