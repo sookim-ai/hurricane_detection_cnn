@@ -1,0 +1,8 @@
+Instruction to visualize predicted and groundtruth tracks in cori
+
+1.go to /global/cscratch1/sd/kim79/visualization in cori
+2. copy prediction_*.npy and ground_truth_*.npy in this folder
+3. "python collect_predicted_value_1tc.py"
+4. It will generate pr_lat.npy, pr_lon.npy, gt_lat.npy, gt_lon.npy which are input for plot_tracks5.py
+5. module load teca
+6. "python plot_tracks5.py"

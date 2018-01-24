@@ -1,0 +1,32 @@
+TEST LOG PRINT
+SOO
+Step 10  Validation Loss= 9.4253  Loss= 0.5946
+Step 20  Validation Loss= 3.5046  Loss= 0.2610
+Step 30  Validation Loss= 1.3487  Loss= 0.1613
+Step 40  Validation Loss= 0.5622  Loss= 0.1400
+Step 50  Validation Loss= 0.2862  Loss= 0.1569
+Step 60  Validation Loss= 0.1928  Loss= 0.1334
+Step 70  Validation Loss= 0.1464  Loss= 0.1165
+Step 80  Validation Loss= 0.1183  Loss= 0.0989
+Step 90  Validation Loss= 0.1065  Loss= 0.1038
+Step 100  Validation Loss= 0.1030  Loss= 0.1103
+Step 110  Validation Loss= 0.1032  Loss= 0.0961
+Step 120  Validation Loss= 0.0917  Loss= 0.0781
+Step 130  Validation Loss= 0.0735  Loss= 0.0578
+Step 140  Validation Loss= 0.0646  Loss= 0.0622
+Step 150  Validation Loss= 0.0629  Loss= 0.0775
+Step 160  Validation Loss= 0.0690  Loss= 0.0661
+Step 170  Validation Loss= 0.0612  Loss= 0.0487
+Step 180  Validation Loss= 0.0448  Loss= 0.0303
+Step 190  Validation Loss= 0.0361  Loss= 0.0349
+Step 200  Validation Loss= 0.0378  Loss= 0.0618
+Step 210  Validation Loss= 0.0510  Loss= 0.0570
+Step 220  Validation Loss= 0.0459  Loss= 0.0347
+Step 230  Validation Loss= 0.0310  Loss= 0.0192
+Step 240  Validation Loss= 0.0244  Loss= 0.0232
+Step 250  Validation Loss= 0.0270  Loss= 0.0499
+Step 260  Validation Loss= 0.0381  Loss= 0.0432
+Step 270  Validation Loss= 0.0345  Loss= 0.0267
+Step 280  Validation Loss= 0.0222  Loss= 0.0131
+Step 290  Validation Loss= 0.0165  Loss= 0.0151
+Step 300  Validation Loss= 0.0182  Loss= 0.0391
