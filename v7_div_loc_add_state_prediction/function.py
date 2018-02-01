@@ -99,22 +99,22 @@ def mask_around_lonlat(image_in,y_lonlat_in):
           lon,lat=y_lonlat_in[i,t,:]
           lon_index=int(lon*w)
           lat_index=int(lat*h)
-          lat_lb=lat_index-10
-          lat_up=lat_index+10
-          lon_lb=lon_index-10
-          lon_up=lon_index+10
-          if float(lat_index-10)<0.0 :
+          lat_lb=lat_index-3
+          lat_up=lat_index+3
+          lon_lb=lon_index-3
+          lon_up=lon_index+3
+          if float(lat_index-3)<0.0 :
               lat_lb=0
-              lat_up=lat_lb+20;
-          if float(lat_index+10)>85.0:
+              lat_up=lat_lb+6;
+          if float(lat_index+3)>85.0:
               lat_up=86
-              lat_lb=86-20
-          if float(lon_index-10)<0.0:
+              lat_lb=86-6
+          if float(lon_index-3)<0.0:
               lon_lb=0
-              lon_up=lon_lb+20
-          if float(lon_index+10)>128.0:
+              lon_up=lon_lb+6
+          if float(lon_index+3)>128.0:
               lon_up=129
-              lon_lb=129-20
+              lon_lb=129-6
           image[ 0:lat_lb,  :,  :]=0
           image[ lat_up:86, :,  :]=0
           image[   :,0:lon_lb,  :]=0
@@ -137,8 +137,11 @@ def div_of_lonlat(lonlat_in):
         for j in range(sh2):
             for t in range(sh3-1):
                 for k in range(sh4):
-                    div=float(lonlat_in[i,j,t+1,k])/float(lonlat_in[i,j,t,k])    
-                    lonlat_out[i,j,t,k]=div        
+                    if (lonlat_in[i,j,t,k]==0):
+                        lonlat_out[i,j,t,k]=0
+                    else:
+                        div=float(lonlat_in[i,j,t+1,k])/float(lonlat_in[i,j,t,k])    
+                        lonlat_out[i,j,t,k]=div        
     return lonlat_out
 
 
