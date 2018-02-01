@@ -93,7 +93,7 @@ with tf.Session() as sess:
     #saver = tf.train.Saver()
     val_best_loss=0.001;
     val_best_step=0;
-    num_epoch=0;
+    num_epoch=1;
     iteration=100;
     alpha=0.9
     seq_length=7
@@ -238,16 +238,16 @@ with tf.Session() as sess:
             prediction_state_time=np.concatenate(prediction_state_time,1)
             prediction_state_batch.append([prediction_state_time])
         prediction_state_batch=np.asarray(np.concatenate(prediction_state_batch,0))
-        te_lonlat_gt=te_lonlat[:,:,2:d3,:]
+        te_lonlat_gt=te_lonlat[:,:,1:d3,:]
         print(np.shape(prediction_state_batch))
-        print(np.shape(lonlat_list)); #(400, 6, 24, 1, 2)
-        print(np.shape(te_lonlat_gt)); #(400,24,6,2)
-        print(np.shape(te_state_out));  #(400,24,6,1)
+        print(np.shape(lonlat_list)); #(400, 7, 24, 1, 2)
+        print(np.shape(te_lonlat_gt)); #(400,24,7,2)
+        print(np.shape(te_state_out));  #(400,24,7,1)
         te_lonlat_gt=np.reshape(te_lonlat_gt, [k1,k2,k3-1,1,2])
-        lonlat_list=np.swapaxes(np.asarray(lonlat_list), 1,2) #(400,24,6,1,2)
+        lonlat_list=np.swapaxes(np.asarray(lonlat_list), 1,2) #(400,24,7,1,2)
         print(np.shape(lonlat_list))
         #Reconstrunction
-        te_init=te_lonlat[:,:,1:2,:]
+        te_init=te_lonlat[:,:,0:1,:]
         lonlat_list=reconstruct_div_to_lonlat(lonlat_list,te_init)
         np.save("prediction_lonlat_"+str(it)+".npy",lonlat_list)
         np.save("ground_trunth_lonlat_"+str(it)+".npy",te_lonlat_gt)
