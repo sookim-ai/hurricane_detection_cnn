@@ -99,22 +99,22 @@ def mask_around_lonlat(image_in,y_lonlat_in):
           lon,lat=y_lonlat_in[i,t,:]
           lon_index=int(lon*w)
           lat_index=int(lat*h)
-          lat_lb=lat_index-3
-          lat_up=lat_index+3
-          lon_lb=lon_index-3
-          lon_up=lon_index+3
-          if float(lat_index-3)<0.0 :
+          lat_lb=lat_index-5
+          lat_up=lat_index+5
+          lon_lb=lon_index-5
+          lon_up=lon_index+5
+          if float(lat_index-5)<0.0 :
               lat_lb=0
-              lat_up=lat_lb+6;
-          if float(lat_index+3)>85.0:
+              lat_up=lat_lb+10;
+          if float(lat_index+5)>85.0:
               lat_up=86
-              lat_lb=86-6
-          if float(lon_index-3)<0.0:
+              lat_lb=86-10
+          if float(lon_index-5)<0.0:
               lon_lb=0
-              lon_up=lon_lb+6
-          if float(lon_index+3)>128.0:
+              lon_up=lon_lb+10
+          if float(lon_index+5)>128.0:
               lon_up=129
-              lon_lb=129-6
+              lon_lb=129-10
           image[ 0:lat_lb,  :,  :]=0
           image[ lat_up:86, :,  :]=0
           image[   :,0:lon_lb,  :]=0
@@ -129,7 +129,7 @@ def mask_around_lonlat(image_in,y_lonlat_in):
 def div_of_lonlat(lonlat_in):
     """"
         input: lonlat_in: (batch_numbers, batch_size, timesteps, 2)
-        output: lonlat_out: lonlat_in[i,j,t+1,:]/lonlat_in[i,j,t,:]
+        output: lonlat_out: lonlat_in[i,j,t+1,:]-lonlat_in[i,j,t,:]
     """
     sh1,sh2,sh3,sh4=np.shape(lonlat_in)
     lonlat_out=np.zeros([sh1,sh2,sh3-1,sh4])
@@ -140,7 +140,7 @@ def div_of_lonlat(lonlat_in):
                     if (lonlat_in[i,j,t,k]==0):
                         lonlat_out[i,j,t,k]=0
                     else:
-                        div=float(lonlat_in[i,j,t+1,k])/float(lonlat_in[i,j,t,k])    
+                        div=float(lonlat_in[i,j,t+1,k])-float(lonlat_in[i,j,t,k])    
                         lonlat_out[i,j,t,k]=div        
     return lonlat_out
 
@@ -152,7 +152,7 @@ def reconstruct_div_to_lonlat(div, initial_position):
         input: div = [batch_numbers,batch_size,timesteps,1,2(div_lon, div_lat)] 
                #(400,24,6,1,2)
                initial_position = [batch_numbers,batch_size,1(tstep),2] 
-        output: lonlat: div[i,j,t,1,:]*lonlat[i,j,t-1,1,:]
+        output: lonlat: div[i,j,t,1,:]+lonlat[i,j,t-1,1,:]
     """
     sh1,sh2,sh3,sh4,sh5=np.shape(div) # sh3 is timesteps
     lonlat=np.zeros([sh1,sh2,sh3,sh4,sh5])
@@ -162,11 +162,11 @@ def reconstruct_div_to_lonlat(div, initial_position):
                 for k in range(sh5):
                     if t<1:
                         #Re-constructed value
-                        value=float(div[i,j,t,0,k])*float(initial_position[i,j,0,k])         
+                        value=float(div[i,j,t,0,k])+float(initial_position[i,j,0,k])         
                         lonlat[i,j,t,0,k]=value
                     else:
                         #Re-constructed value
-                        value=float(div[i,j,t,0,k])*float(lonlat[i,j,t-1,0,k])              
+                        value=float(div[i,j,t,0,k])+float(lonlat[i,j,t-1,0,k])              
                         lonlat[i,j,t,0,k]=value                     
     return lonlat
 

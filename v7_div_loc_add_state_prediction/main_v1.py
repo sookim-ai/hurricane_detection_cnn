@@ -93,18 +93,22 @@ with tf.Session() as sess:
     #saver = tf.train.Saver()
     val_best_loss=0.001;
     val_best_step=0;
-    num_epoch=1;
-    iteration=100;
+    num_epoch=2;
+    iteration=1000;
     alpha=0.9
+    beta= 0.95 # teacher's forcing
+    percent_of_ground_truth=1
     seq_length=7
     init = tf.global_variables_initializer()
     sess.run(init)
     fetches = {'final_state': last_state,
               'prediction_lonlat': prediction_lonlat}
     for it in range(iteration):
+        percent_of_ground_truth= beta * percent_of_ground_truth
+        percent_of_prediction= 1-percent_of_ground_truth
     ###Training Phase 1 ####################    
         zero_state=np.zeros((number_of_layers, 2, FLAGS.batch_size,lstm_size))
-        for step in range(0,2*num_epoch*train_size):
+        for step in range(int(percent_of_ground_truth*num_epoch*train_size)):
             step_i=np.random.randint(0,train_size);
             j=np.random.randint(0,val_size);
             #Generate mask
@@ -131,7 +135,7 @@ with tf.Session() as sess:
         print("Iteration "+str(it)+"Training DONE! \n Start Training Phase 2 -Train with Prediction \n")
 
         ###Training Phase 2 : Train with prediction ####################
-        for step in range(0,1): # num_epoch*train_size):
+        for step in range(0,int(percent_of_prediction*num_epoch*train_size)):
             step_i=np.random.randint(0,train_size);
             j=np.random.randint(0,val_size);
             time=0
@@ -213,17 +217,21 @@ with tf.Session() as sess:
             # get the output for the first time step
             feed_dict = {X:image, Y_state_in:initial_input_Y_state_in, init_state:zero_state}
             eval_out = sess.run(fetches, feed_dict)
-            outputs_lonlat = [eval_out['prediction_lonlat']] #(1,24,1,2)
+            reconstructed_lonlat=reconstruct_one_lonlat(eval_out['prediction_lonlat'],y_lonlat_in)
+            outputs_lonlat=[reconstructed_lonlat]
+
             next_state = eval_out['final_state']
             prediction_state_time=[initial_input_Y_state_in];
             for time in xrange(1,k3-1):
-                y_lonlat_in=reconstruct_one_lonlat(outputs_lonlat[-1],y_lonlat_in)
-                image= mask_around_lonlat(te_image[bch,:,time:time+1,:], y_lonlat_in)
+                image= mask_around_lonlat(te_image[bch,:,time:time+1,:], reconstructed_lonlat)
+                initial_position=reconstructed_lonlat
+
 
                 #THINGS TO DO: END_SIGNAL (Check)
                 #(1) Access to the 10x10cropped image([x0,x1]) from te_image[bch,:,time:time+1,:] centering around output_lonlat[-1]
                 cropped_image=crop_around_lonlat(image,y_lonlat_in) #(24,10,10,2) 
                 x0_val=cropped_image[:,:,:,0]; x1_val=cropped_image[:,:,:,1];
+
                 #(2) Obtain detection result from detection cnn
                 detection_results=sess.run(state_prediction,feed_dict={x0:x0_val,x1:x1_val,keep_p: 1.0}) #(24,2) yes->[0,1] no->[1,0]
                 detection_results= np.reshape(detection_results[:,1],[24,1,1]) #(24,1)-->(24,"1",1)
@@ -232,7 +240,9 @@ with tf.Session() as sess:
 
                 #feed_dict = {X:image ,Y_state_in:te_state[bch,:,time:time+1,:], init_state: next_state}
                 eval_out = sess.run(fetches, feed_dict)
-                outputs_lonlat.append(eval_out['prediction_lonlat'])
+                reconstructed_lonlat=reconstruct_one_lonlat(eval_out['prediction_lonlat'],initial_position)
+                print(eval_out['prediction_lonlat'][0,:,:],initial_position[0,:,:],reconstructed_lonlat[0,:,:])
+                outputs_lonlat.append(reconstructed_lonlat)
                 next_state = eval_out['final_state']
             lonlat_list.append(outputs_lonlat) #[(timesteps,24,batch(1),2),(),(), ...]
             prediction_state_time=np.concatenate(prediction_state_time,1)
@@ -247,8 +257,6 @@ with tf.Session() as sess:
         lonlat_list=np.swapaxes(np.asarray(lonlat_list), 1,2) #(400,24,7,1,2)
         print(np.shape(lonlat_list))
         #Reconstrunction
-        te_init=te_lonlat[:,:,0:1,:]
-        lonlat_list=reconstruct_div_to_lonlat(lonlat_list,te_init)
         np.save("prediction_lonlat_"+str(it)+".npy",lonlat_list)
         np.save("ground_trunth_lonlat_"+str(it)+".npy",te_lonlat_gt)
         np.save("ground_truth_state_",str(it)+".npy",te_state_out)
