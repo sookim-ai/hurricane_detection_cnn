@@ -1,5 +1,5 @@
 """
-Usage: train_detection_cnn.py DATASET MODEL [options]
+Usage: 1_train_detection_cnn.py DATASET MODEL [options]
 
 Options:
     -h, --help        show this help message
@@ -59,36 +59,26 @@ def build_detection_CNN(input_placeholder, keep_prob, output_placeholder=None, h
     xd2, xd3, n_input_chan, label_size = map(int, [xd2, xd3, n_input_chan, label_size])
 
     with tf.variable_scope('model', reuse=reuse):
-        h_pool2 = []
-        for i in range(n_input_chan):
-             # (0) slice corresponding channel
-             x_image = input_placeholder[:,:,:,i:i+1]
-             # (1) First Convolutional Layer
-             W_conv1 = weight_variable([3, 3, 1, 32], 'W_conv1_{}'.format(i))
-             b_conv1 = bias_variable([32], 'b_conv1_{}'.format(i))
-             # conv=tf.nn.conv2d(x_image, W_conv1,strides=[1, 1, 1, 1], padding='SAME')
-             h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1)+b_conv1)
-             h_pool1 = max_pool_2x2(h_conv1)
-            # (2) Second Convolutional Layer
-             W_conv2 = weight_variable([5, 5, 32, 64], 'W_conv2_{}'.format(i))
-             b_conv2 = bias_variable([64], 'b_conv2_{}'.format(i))
-             h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
-             h_pool2.append(max_pool_2x2(h_conv2))
-
+        W_conv1 = weight_variable([3, 3, n_input_chan, 32], 'W_conv1')
+        b_conv1 = bias_variable([32], 'b_conv1')
+        h_conv1 = tf.nn.relu(conv2d(input_placeholder, W_conv1, padding='VALID')+b_conv1)
+        W_conv2 = weight_variable([5, 5, 32, 64], 'W_conv2')
+        b_conv2 = bias_variable([64], 'b_conv2')
+        h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2, padding='VALID') + b_conv2)
+         
         # (3) Merge chanels  
-        h_pool2_concat = tf.concat(h_pool2, 3)
-        pd1, pd2, pd3, pd4 = h_pool2_concat.get_shape() 
+        pd1, pd2, pd3, pd4 = h_conv2.get_shape() 
 
         # ------- CONV as FC ----------------
         # (4) FC Layer 1
         if heatmap:
             W_fc1_size = fcconvdef[0]
         else:
-            n_fc1_chan = 128
+            n_fc1_chan = 64 
             W_fc1_size = [int(pd2), int(pd3), int(pd4), n_fc1_chan]
         W_fc1 = weight_variable(W_fc1_size, 'W_fc1') 
         b_fc1 = bias_variable([W_fc1_size[-1]], 'b_fc1')
-        h_fc1 = tf.nn.relu(conv2d(h_pool2_concat, W_fc1, padding='VALID') + b_fc1)
+        h_fc1 = tf.nn.relu(conv2d(h_conv2, W_fc1, padding='VALID') + b_fc1)
 
         # (5) Dropout 
         h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
@@ -101,7 +91,8 @@ def build_detection_CNN(input_placeholder, keep_prob, output_placeholder=None, h
             W_fc2_size = [int(hd2), int(hd3), int(hd4), label_size]
         W_fc2 = weight_variable(W_fc2_size, 'W_fc2') 
         b_fc2 = bias_variable([label_size], 'b_fc2') 
-        y_conv = tf.nn.sigmoid(conv2d(h_fc1_drop, W_fc2, padding='VALID') + b_fc2)
+        a = conv2d(h_fc1_drop, W_fc2, padding='VALID') + b_fc2
+        y_conv = tf.nn.sigmoid(a)
 
     #(6) Train Variable
     if heatmap:
@@ -110,7 +101,8 @@ def build_detection_CNN(input_placeholder, keep_prob, output_placeholder=None, h
         accuracy = None
         y_conv_squeezed = None
     else:
-        y_conv_squeezed = tf.squeeze(y_conv, axis=[1, 2])
+        y_conv_squeezed = tf.reduce_mean(tf.reduce_mean(y_conv, axis=2), axis=1)
+        # y_conv_squeezed = tf.squeeze(y_conv, axis=[1, 2])
         cross_entropy = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=output_placeholder, logits=y_conv_squeezed))
         learning_rate = 1e-5
         train_op = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
@@ -176,6 +168,7 @@ if __name__ == '__main__':
 
     # Augment negative examples
     # neg_xs = batch_xs_in[batch_ys_in.flatten()==0]
+    # # neg_xs = neg_xs[:,::-1,:,:]  # filp
     # print(neg_xs.shape)
     # neg_ys = batch_ys_in[batch_ys_in.flatten()==0]
     # batch_xs_in = np.append(batch_xs_in, neg_xs, axis=0)
@@ -191,17 +184,14 @@ if __name__ == '__main__':
     # for input scaling -----------
     time_ = time.time()
     print('---------------------------------------------')
-    # whole_img_max = whole_img.max(axis=2).max(axis=1).max(axis=0)
-    # print(whole_img_max)
-    # whole_img_min = whole_img.min(axis=2).min(axis=1).min(axis=0)
-    # print(whole_img_min)
     whole_img_max = np.load(os.path.join(data_dir, 'heatmap_data', 'max.npy'))
     whole_img_min = np.load(os.path.join(data_dir, 'heatmap_data', 'min.npy'))
-    print(whole_img_max)
-    print(whole_img_min)
+
+    # clipping!
+    # clip_max = 100
+    # whole_img_max[0] = clip_max
+    # batch_xs_in[:,:,:,0] = np.clip(batch_xs_in[:,:,:,0], 0., clip_max)
     batch_xs_in = (batch_xs_in - whole_img_min) / (whole_img_max - whole_img_min )
-    # print(batch_xs_in.max(axis=2).max(axis=1).max(axis=0))
-    # print(batch_xs_in.min(axis=2).min(axis=1).min(axis=0))
     print('{:.2f} sec'.format(time.time() - time_))
     print('---------------------------------------------')
     print(batch_xs_in.max(axis=2).max(axis=1).max(axis=0))
@@ -209,6 +199,9 @@ if __name__ == '__main__':
     print("Size of Data: "+str(xd2)+" by "+str(xd3)+" "+str(xd4)+"channels\n")
     print("Size of label: "+str(yd1)+" by "+str(yd2)+"\n")
     print("Size of whole img: "+str(imgd2)+" by "+str(imgd3)+"\n")
+
+    print(whole_img_max)
+    print(whole_img_min)
 
     def shuffle_tensors(batch_xs_in,batch_ys_in):
         index_list=[i for i in range(yd1)];
@@ -221,7 +214,7 @@ if __name__ == '__main__':
 
     #shuffle, 90% trainning 10% testing
     batch_xs, batch_ys = shuffle_tensors(batch_xs_in, batch_ys_in)
-    num_tr = int(xd1*0.9)
+    num_tr = int(xd1*0.95)
     training_data = np.asarray(batch_xs[0:num_tr])
     test_data = np.asarray(batch_xs[num_tr:xd1])
     training_label = np.asarray(batch_ys[0:num_tr]) 
@@ -232,7 +225,7 @@ if __name__ == '__main__':
     n_train = training_data.shape[0]
     batch_size = 50
     n_batch = math.ceil(n_train / batch_size)
-    n_epoch = 1000
+    n_epoch = 30 
     last_batch_idx = n_batch - 1  # for checking the last trailing batch
 
     print('# Num training data: {}'.format(n_train))
@@ -320,3 +313,54 @@ if __name__ == '__main__':
     # Save the variables to disk.
     save_path = saver.save(sess, ckpt_file)
     print("Model saved in file: %s" % save_path)
+
+
+# n_frame, n_lat, n_lon, _ = whole_img.shape
+# _, md2, md3, _ = pred_y_map.shape.as_list()  # model output dimensions
+# d2_offset = int((n_lat - md2) / 2.)
+# d3_offset = int((n_lon - md3) / 2.)
+# print('offsets: d2 {}, d3{}'.format(d2_offset, d3_offset))
+# time_s = time.time()
+# 
+# n_heatmap_batch_size = 100
+# n_heatmap_batch = math.ceil(n_frame / n_heatmap_batch_size)
+# last_batch_idx = n_heatmap_batch - 1
+# 
+# result_map = np.zeros((n_frame, n_lat, n_lon))
+# for batch_idx in tqdm(range(n_heatmap_batch)):
+#     b_start = batch_idx * n_heatmap_batch_size
+#     if batch_idx == last_batch_idx:
+#         b_end = n_frame
+#     else:
+#         b_end = (batch_idx+1) * n_heatmap_batch_size
+#     frame = whole_img[b_start:b_end, :, :, :]
+#     
+#     frame = (frame - whole_img_min) / (whole_img_max - whole_img_min)
+#     
+#     out = sess.run(pred_y_map, feed_dict={img: frame,
+#                                       keep_prob: 1.0})
+#     result_map[b_start:b_end, d2_offset:d2_offset+md2, d3_offset:d3_offset+md3] = out[:,:,:,0]
+# heatmap_file = ckpt_file + '_heatmap.npy'
+# print(heatmap_file)
+# np.save(heatmap_file, result_map)
+
+
+
+# win_size = xd2 
+# offset = int(win_size/2)
+# time_s = time.time()
+# n_time_start = 750
+# n_time_span = 30
+# result_map = np.zeros((n_time_span, n_lat, n_lon))
+# for img_idx in tqdm(range(n_time_start, n_time_start + n_time_span)):
+#     for lat_idx in range(n_lat-win_size):
+#         for lon_idx in range(n_lon-win_size):
+#             window_crop = whole_img[img_idx:img_idx+1, lat_idx:lat_idx+win_size, lon_idx:lon_idx+win_size, :]
+#             
+#             window_crop = (window_crop - whole_img_min) / (whole_img_max - whole_img_min)
+#             
+#             out = sess.run(pred_y_squeezed, feed_dict={x: window_crop,
+#                                               keep_prob: 1.0})
+#             result_map[img_idx - n_time_start,lat_idx + offset, lon_idx + offset] = out[0]
+#elapsed = time.time() - time_s
+#print('{:.3f}'.format(elapsed))
