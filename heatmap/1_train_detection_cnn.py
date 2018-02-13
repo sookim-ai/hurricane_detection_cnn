@@ -59,10 +59,10 @@ def build_detection_CNN(input_placeholder, keep_prob, output_placeholder=None, h
     xd2, xd3, n_input_chan, label_size = map(int, [xd2, xd3, n_input_chan, label_size])
 
     with tf.variable_scope('model', reuse=reuse):
-        W_conv1 = weight_variable([3, 3, n_input_chan, 32], 'W_conv1')
-        b_conv1 = bias_variable([32], 'b_conv1')
+        W_conv1 = weight_variable([3, 3, n_input_chan, 64], 'W_conv1')
+        b_conv1 = bias_variable([64], 'b_conv1')
         h_conv1 = tf.nn.relu(conv2d(input_placeholder, W_conv1, padding='VALID')+b_conv1)
-        W_conv2 = weight_variable([5, 5, 32, 64], 'W_conv2')
+        W_conv2 = weight_variable([3, 3, 64, 64], 'W_conv2')
         b_conv2 = bias_variable([64], 'b_conv2')
         h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2, padding='VALID') + b_conv2)
          
@@ -151,7 +151,7 @@ if __name__ == '__main__':
         model_dir = 'model'
         n_input_chan = 3
 
-    path = os.path.join(data_dir, "data")
+    path = os.path.join(data_dir, "more_data")
     model_path = os.path.join(data_dir, model_dir, model_name)
     if not os.path.exists(model_path):
         os.makedirs(model_path)
@@ -162,8 +162,12 @@ if __name__ == '__main__':
     fo = open("{}_out_log.txt".format(data_select), 'w')
 
     # Read Data
-    batch_xs_in = np.load(os.path.join(path, "hurricane_input.npy"))
-    batch_ys_in = np.load(os.path.join(path, "hurricane_label.npy"))
+    # batch_xs_in = np.load(os.path.join(path, "hurricane_input.npy"))
+    # batch_ys_in = np.load(os.path.join(path, "hurricane_label.npy"))
+    batch_xs_in = np.load(os.path.join(path, "hurricane_input_3ch.npy"))
+    batch_ys_in = np.load(os.path.join(path, "hurricane_label_3ch.npy"))
+    batch_xs_in = batch_xs_in[:,:,:,:-1]
+    print('last channel dropped', batch_xs_in.shape)
     print("Before augment {} {}".format(batch_xs_in.shape, batch_ys_in.shape))
 
     # Augment negative examples
@@ -177,7 +181,8 @@ if __name__ == '__main__':
     xd1, xd2, xd3, xd4 = np.shape(batch_xs_in) 
     yd1, yd2 = np.shape(batch_ys_in) 
     channels = xd4
-    whole_img_path = os.path.join(data_dir, 'heatmap_data','hurricane_heatmap_input_{}channels.npy'.format(n_input_chan))
+    # whole_img_path = os.path.join(data_dir, 'heatmap_data','hurricane_heatmap_input_{}channels.npy'.format(n_input_chan))
+    whole_img_path = os.path.join(data_dir, 'heatmap_data','input_{}channels.npy'.format(n_input_chan))
     whole_img = np.load(whole_img_path, mmap_mode='r')
     _, imgd2, imgd3, imgd4 = whole_img.shape
 
@@ -225,7 +230,7 @@ if __name__ == '__main__':
     n_train = training_data.shape[0]
     batch_size = 50
     n_batch = math.ceil(n_train / batch_size)
-    n_epoch = 30 
+    n_epoch = 100 
     last_batch_idx = n_batch - 1  # for checking the last trailing batch
 
     print('# Num training data: {}'.format(n_train))

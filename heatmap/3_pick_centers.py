@@ -59,7 +59,7 @@ for heatmap_idx in range(n_heatmap):
         max_idx = np.argmax(probs)
         center_h = component_h[max_idx]
         center_w = component_w[max_idx]
-        print(center_h, center_w)
+        #print(center_h, center_w)
         l_result.append((heatmap_idx, center_h, center_w))
 
 df_result = pd.DataFrame(l_result, columns=['frame', 'lon_idx', 'lat_idx'])

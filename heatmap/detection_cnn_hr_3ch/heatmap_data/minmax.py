@@ -4,6 +4,15 @@ from tqdm import tqdm
 
 img = np.load('hurricane_heatmap_input_3channels.npy', mmap_mode='r')
 
+print('clipping the first dimension')
+img_clipped = img.copy()
+img_clipped[:,:,:,0] = np.clip(img[:,:,:,0], 0., 10.)
+clipped_file = 'hurricane_heatmap_input_3channels_clip.npy'
+np.save(clipped_file, img_clipped)
+
+print('saved! ', clipped_file)
+img = img_clipped
+
 d1, d2, d3, d4 = img.shape
 running_max = [-np.inf, -np.inf, -np.inf]
 running_min = [np.inf, np.inf, np.inf]
@@ -21,7 +30,7 @@ for i in tqdm(range(d1)):
 
 print(running_max)
 print(running_min)
-np.save('max.npy', running_max)
-np.save('min.npy', running_min)
+np.save('max_clip.npy', running_max)
+np.save('min_clip.npy', running_min)
 
 

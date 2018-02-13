@@ -56,7 +56,9 @@ print('ckpt_file: ', ckpt_file)
 #
 
 
-whole_img_path = os.path.join(data_dir, 'heatmap_data','hurricane_heatmap_input_{}channels.npy'.format(n_input_chan))
+# whole_img_path = os.path.join(data_dir, 'heatmap_data','hurricane_heatmap_input_{}channels.npy'.format(n_input_chan))
+whole_img_path = os.path.join(data_dir, 'heatmap_data','input_{}channels.npy'.format(n_input_chan))
+print('processing', whole_img_path)
 whole_img = np.load(whole_img_path, mmap_mode='r')
 _, imgd2, imgd3, imgd4 = whole_img.shape
 whole_img_max = np.load(os.path.join(data_dir, 'heatmap_data', 'max.npy'))
@@ -101,7 +103,7 @@ n_heatmap_batch_size = 5
 n_heatmap_batch = math.ceil(n_frame / n_heatmap_batch_size)
 last_batch_idx = n_heatmap_batch - 1
 
-result_map = np.zeros((n_frame, n_lat, n_lon))
+result_map = np.zeros((n_frame, n_lat, n_lon), dtype='float32')
 for batch_idx in tqdm(range(n_heatmap_batch)):
     b_start = batch_idx * n_heatmap_batch_size
     if batch_idx == last_batch_idx:
@@ -130,7 +132,9 @@ if b_test:
     np.save(heatmap_file, result_map[b_start:b_end])
     print(heatmap_file)
 else:
-    heatmap_file = ckpt_file + '_heatmap.npy'
+    # heatmap_file = ckpt_file + '_heatmap.npy'
+    heatmap_file = ckpt_file + '_heatmap_0208.npy'
+
     print(heatmap_file)
     time_s = time.time()
     np.save(heatmap_file, result_map)
