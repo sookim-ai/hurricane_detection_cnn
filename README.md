@@ -1,2 +1,5 @@
+
 # hurricane_detection_cnn
-step 1 to build heat-map
+
+Climate Deep Learning Code
+Tensorflow 1.4
