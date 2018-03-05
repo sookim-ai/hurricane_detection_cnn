@@ -2,7 +2,7 @@
 # Climate Deep Learning Code (optimized for Tensorflow 1.4)
 
 
-1. Heatmap: This folder contains following mode.
+1. Heatmap: This folder contains following mode. (By sangwoong yoon)
 
 (1) detection CNN (1_train_detection_cnn.py) : 
 
