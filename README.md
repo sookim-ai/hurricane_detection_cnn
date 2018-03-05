@@ -17,3 +17,5 @@ This model generate heatmap using detection CNN by convolute learned feature fro
 
     >> python 2_generate_heatmap.py
     
+(3) Showcase: visualize_heatmap.ipynb
+    
