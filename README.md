@@ -9,7 +9,7 @@
       The model to detect extra-tropical cyclone in multi-channeled climate data with 98.2% accuracy.
       Once you prepare your own dataset  (I can share dataset only to request)
    
-         >> python 1_train_detection_cnn.py
+       >> python 1_train_detection_cnn.py
          
    (2) The model to generate heatmap (2_generate_heatmap.py) :
 
@@ -24,7 +24,7 @@
     (1) exact_position:
          Output of RNN is exact location of longitude and latitude of hurricane center in 2d-input image.
             
-            >> python main_v1.py
+           >> python main_v1.py
          
     (2) grad_position:
          Output of RNN is difference of location of longitude and latitude of hurricane center between input of previous time-step and input of current time step. 
